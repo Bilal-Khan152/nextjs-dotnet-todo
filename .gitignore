@@ -1,0 +1,10 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# .NET (backend, later)
+[Bb]in/
+[Oo]bj/
+*.user
