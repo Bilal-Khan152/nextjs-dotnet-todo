@@ -1,38 +1,68 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TodoForm from "@/components/TodoForm";
 import TodoItem from "@/components/TodoItem";
-import { seedTodos } from "@/lib/seedTodos";
+import {
+  fetchTodos,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+} from "@/lib/api";
 
-// NOTE (learning project): todos live in local state for now.
-// When the ASP.NET Core Web API is ready, these handlers become
-// fetch() calls to the backend — the UI itself does not change.
+// Todos now come from the ASP.NET Core Web API (see lib/api.js).
+// This page only manages UI state — the data itself lives in SQL Server.
 export default function Home() {
-  const [todos, setTodos] = useState(seedTodos);
+  const [todos, setTodos] = useState([]);
   const [editingTodo, setEditingTodo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const formRef = useRef(null);
 
-  function handleCreate({ name, description }) {
-    const todo = {
-      id: crypto.randomUUID(),
-      name,
-      description,
-      createdAt: Date.now(),
-    };
-    setTodos((prev) => [todo, ...prev]);
+  // Load the list once, when the page opens.
+  useEffect(() => {
+    fetchTodos()
+      .then(setTodos)
+      .catch(() =>
+        setError(
+          "Can't reach the API. Is the backend running on http://localhost:5111?",
+        ),
+      )
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  async function handleCreate(values) {
+    try {
+      const created = await createTodo(values);
+      setTodos((prev) => [created, ...prev]);
+      setError(null);
+    } catch {
+      setError("Could not save the todo — the API did not respond.");
+    }
   }
 
-  function handleUpdate(id, { name, description }) {
-    setTodos((prev) =>
-      prev.map((todo) => (todo.id === id ? { ...todo, name, description } : todo)),
-    );
-    setEditingTodo(null);
+  async function handleUpdate(id, values) {
+    try {
+      await updateTodo(id, values);
+      setTodos((prev) =>
+        prev.map((todo) => (todo.id === id ? { ...todo, ...values } : todo)),
+      );
+      setEditingTodo(null);
+      setError(null);
+    } catch {
+      setError("Could not update the todo — the API did not respond.");
+    }
   }
 
-  function handleDelete(id) {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
-    if (editingTodo?.id === id) setEditingTodo(null);
+  async function handleDelete(id) {
+    try {
+      await deleteTodo(id);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+      if (editingTodo?.id === id) setEditingTodo(null);
+      setError(null);
+    } catch {
+      setError("Could not delete the todo — the API did not respond.");
+    }
   }
 
   function handleEdit(todo) {
@@ -80,9 +110,20 @@ export default function Home() {
           />
         </div>
 
+        {/* API error banner */}
+        {error && (
+          <div className="animate-rise mt-6 rounded-2xl border border-rose-400/30 bg-rose-500/10 px-5 py-3.5 text-sm text-rose-200">
+            {error}
+          </div>
+        )}
+
         {/* List */}
         <section className="mt-8 space-y-3">
-          {todos.length === 0 ? (
+          {isLoading ? (
+            <div className="animate-rise rounded-3xl border border-white/10 px-6 py-14 text-center">
+              <p className="text-sm text-zinc-500">Loading todos…</p>
+            </div>
+          ) : todos.length === 0 ? (
             <div className="animate-rise rounded-3xl border border-dashed border-white/15 px-6 py-14 text-center">
               <p className="text-[15px] font-medium text-zinc-300">
                 No todos yet
@@ -106,7 +147,8 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-12 text-center font-mono text-[11px] tracking-wide text-zinc-600">
-          Frontend only for now — data is local. The .NET API plugs in next.
+          Connected: this UI talks to the ASP.NET Core Web API on
+          localhost:5111, data lives in SQL Server.
         </footer>
       </main>
     </div>

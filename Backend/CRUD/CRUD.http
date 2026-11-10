@@ -1,6 +1,26 @@
 @CRUD_HostAddress = http://localhost:5111
 
-GET {{CRUD_HostAddress}}/weatherforecast/
+### List all todos
+GET {{CRUD_HostAddress}}/api/todos
 Accept: application/json
 
-###
+### Create a todo
+POST {{CRUD_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "name": "My first API todo",
+  "description": "Created from the CRUD.http file in Visual Studio"
+}
+
+### Update todo with id 1
+PUT {{CRUD_HostAddress}}/api/todos/1
+Content-Type: application/json
+
+{
+  "name": "Updated name",
+  "description": "Updated description"
+}
+
+### Delete todo with id 1
+DELETE {{CRUD_HostAddress}}/api/todos/1

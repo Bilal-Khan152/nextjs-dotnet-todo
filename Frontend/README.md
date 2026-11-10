@@ -10,5 +10,7 @@ npm run dev
 
 Open http://localhost:3000
 
-Data is local state for now (`app/page.js`). When the ASP.NET Core Web API
-in `../Backend` is ready, the handlers here become `fetch()` calls to it.
+Data comes from the ASP.NET Core Web API in `../Backend` — all calls live
+in `lib/api.js` (default address http://localhost:5111, override with the
+`NEXT_PUBLIC_API_URL` env variable). The backend must be running, and its
+database created, for the list to load — see `../Backend/README.md`.

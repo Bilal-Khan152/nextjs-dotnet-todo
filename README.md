@@ -2,8 +2,12 @@
 
 A simple **Todo CRUD app** built for learning full-stack development:
 
-- **Frontend** — Next.js + Tailwind CSS (this is done, UI only for now)
-- **Backend** — ASP.NET Core Web API + EF Core (code-first) + SQL Server (coming next)
+- **Frontend** — Next.js + Tailwind CSS
+- **Backend** — ASP.NET Core Web API + EF Core (code-first) + SQL Server
+
+The two are connected: the frontend calls the API at http://localhost:5111
+(CORS is enabled for http://localhost:3000). See `Backend/README.md` for
+how to run the API and create the database.
 
 ## Structure
 
