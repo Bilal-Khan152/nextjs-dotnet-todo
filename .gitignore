@@ -8,3 +8,7 @@ Thumbs.db
 [Bb]in/
 [Oo]bj/
 *.user
+
+# Visual Studio local cache — never commit, VS locks these files
+.vs/
+*.suo
